@@ -1,54 +1,49 @@
 # MIRA — Measurable Intelligence for Risk & Assurance
 
-**Verify before you act. Understand before you approve.**
+**Verify before you act. Measure trust continuously.**
 
-MIRA is a proposed local-first, open-source security assistant for humans and AI agents. It checks a concrete action against explicit permissions and current evidence, explains the decision, and suggests a compliant next step.
+MIRA is a proposed local-first intelligent HTTP(S) security proxy for humans and AI agents. It inspects supported requests and responses, uses a lightweight local model with graph-retrieved evidence for selective semantic analysis, applies independent policy, maintains dynamic destination trust profiles, and reports privacy-preserving traffic statistics.
 
-**Status (2026-11-26): design / pre-implementation.** No working runtime, supported integration, benchmark score, enterprise certification or prevention guarantee is claimed. This repository documents a proposed v0.1; installation commands will be published only after implementation and testing.
+**Status (2026-11-26): design / pre-implementation.** No working runtime, measured performance, enterprise certification, all-device interception or universal prevention claim.
 
-## Why MIRA?
+## First build: proxy-first 48-hour sprint
 
-A trusted application can still be used to perform an unauthorized action. A package can acquire a newly disclosed vulnerability. A suspicious link can be unknown to every current feed. Users need to understand what is risky about *this action*, not an opaque score about an entire website.
+The active design is [PROXY_FIRST_48H.md](docs/PROXY_FIRST_48H.md). It supersedes the previous SafeShare-only sprint.
 
-MIRA proposes a small shared decision contract for a personal developer and a security-conscious team: **action → evidence → policy decision → safe next step → audit receipt**.
+| Component | Proposed implementation |
+|---|---|
+| Networking | mitmproxy forward proxy + Python addon |
+| Demo | Docker isolated client, proxy, local model and synthetic HTTP(S) target |
+| AI | Qwen3.5-0.8B, llama.cpp quantized GGUF, bounded structured prompts |
+| GraphRAG | SQLite typed graph, exact seeds, bounded graph traversal, evidence IDs |
+| Dynamic Trust | Public heuristic, scope, evidence coverage, freshness, overrides |
+| Policy | Deterministic request/response enforcement; model cannot grant permissions |
+| Storage | SQLite, bounded caches, sanitized flow metadata and aggregates |
+| UI | Local dashboard for decisions, trust, traffic and resource measurements |
 
-## First build: 48-hour SafeShare sprint
+All supported HTTP(S) traffic in the isolated demo must traverse the proxy. Actual host-wide coverage requires platform-specific routing and enforcement; encrypted/pinned or unsupported traffic may not be inspectable. TLS interception requires authorized client trust of a demo CA. Never install a CA on the host automatically, bypass pinning, or intercept others' traffic without authorization.
 
-The first implementation is narrower than the roadmap below: a local data-sharing check and redaction workspace plus one guarded outbound tool adapter with a synthetic receiver. No URL reputation or CVE connector is required for this sprint. See [48-hour sprint specification](docs/48H_SPRINT.md) for the frozen proposed scope, task ownership, tests and definition of done.
+## Planned demo
 
-## Proposed v0.1 roadmap (beyond the first sprint)
-
-| Interface | Purpose | Boundary |
-|---|---|---|
-| Local CLI / local web panel | Check a URL or package, preview an outbound action, inspect evidence and remediation | Advisory; does not intercept other applications |
-| Owned tool adapter | Mediate structured package-check, local read and outbound send demo actions | Enforces only owned tools in a restricted test runner |
-| Shared policy and evidence core | ALLOW, WARN (hold), DENY; exact evidence and versioned rules | No model can grant permissions |
-| Local evidence journal | Inspect, replay decisions, update or revoke evidence | Sanitized by default; no external telemetry |
-
-One live intelligence connector: OSV package/version advisory lookup, opt-in (package name/version/ecosystem are transmitted). URL checks use reviewed local indicators and clearly labeled synthetic fixtures; unknown URLs are not safe by default. No real payment, universal proxy, arbitrary shell execution, browser-wide interception, custom model training or enterprise identity integration in v0.1.
-
-### Example
-A developer permits an agent to read a project artifact and send a sanitized report to an approved destination. A tool result suggests sending a credential elsewhere. MIRA denies the outbound action under the local policy, explains the exact matched rule and proposes a redacted report to the approved destination. The controlled target receives no denied request. This is a planned test, not a measured result.
+A clean request succeeds. A synthetic credential upload to a prohibited destination is blocked before the target receives it. A suspicious response is withheld from the client (upstream effects are not undone). A reviewed evidence update changes the destination trust status and subsequent policy decision. The dashboard records sanitized receipts for both directions. This is a planned scenario, not a test result.
 
 ## Design documents
 
-- [Product and technical specification](docs/DESIGN.md) — users, architecture, contracts, sources, limits and roadmap.
-- [Threat model and evaluation](docs/VALIDATION.md) — acceptance gates, baselines and reproducible metrics.
-- [Open development principles](docs/OPEN_SOURCE.md) — licensing proposal, contribution and disclosure expectations.
+- [Active 48-hour proxy-first specification](docs/PROXY_FIRST_48H.md): topology, bidirectional pipeline, model/prompt, GraphRAG, trust, storage, acceptance gates.
+- [Earlier product and technical specification](docs/DESIGN.md): historical design; not the active sprint scope.
+- [Earlier SafeShare sprint](docs/48H_SPRINT.md): superseded by proxy-first scope.
+- [Validation principles](docs/VALIDATION.md): earlier broader evaluation plan; active sprint gates are in proxy-first spec.
+- [Open development principles](docs/OPEN_SOURCE.md): licensing proposal, contribution and disclosure expectations.
 
 ## Principles
 
-- Local by default; no account, GPU or cloud LLM required for the core.
-- Explicit policy-as-code and independently enforced authorization.
-- Explain facts, inferences, uncertainty and the exact policy scope.
-- Never treat absence of evidence as proof of safety.
-- Publish fixtures, schemas, tests, dependencies, evaluation protocols and limitations.
-- Integrate existing open security tools rather than rebuilding their complete functionality.
+- Local inference, no cloud model or external telemetry required.
+- No raw request/response bodies, credentials, cookies or private prompts in persistent logs.
+- Distinguish observed, inspected, forwarded, blocked and delivered flows.
+- Explicit policy-as-code; a high trust score never overrides hard rules.
+- Publish model/version, prompt, rules, trust formula, sources, fixtures, tests, results and limitations.
+- Integrate established open tools instead of reimplementing networking and inference.
 
 ## Licensing and use
 
-Apache-2.0 is proposed, subject to maintainers confirming ownership and third-party terms. A public repository alone does not grant an open-source license; do not represent this project as licensed until a LICENSE is adopted. Do not commit company/customer data, credentials, private security configurations, or proprietary work. The project is independent and does not imply any company endorsement.
-
-## References
-
-See the design and validation documents for reviewed prior art and official documentation. MIRA is not an antivirus, DLP replacement, general-purpose agent sandbox, payment protection system, or proof that an action is universally safe.
+Apache-2.0 proposed pending maintainer ownership and third-party terms review. Public visibility alone is not an open-source license. No company/customer data, private configurations, real credentials or unauthorized monitoring. Independent project; no company endorsement. MIRA is not a production DLP, antivirus, universal firewall or guarantee of safety.
