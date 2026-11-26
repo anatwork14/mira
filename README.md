@@ -29,7 +29,7 @@ A clean request succeeds. A synthetic credential upload to a prohibited destinat
 
 ## Retrieval prototype
 
-See [Hybrid GraphRAG research and API](docs/HYBRID_GRAPHRAG.md) and [implementation](mira/retrieval.py). Six search modes, optional local multilingual E5, evidence validity and graph provenance. Synthetic tests supplied; execution and proxy integration not yet verified.
+See [Hybrid GraphRAG research and API](docs/HYBRID_GRAPHRAG.md) and [implementation](mira/retrieval.py). Six search modes, optional local multilingual E5, evidence validity and graph provenance. Eight synthetic unit tests passed on byte-identical retrieval and test files; actual embedding model, Qwen and proxy integration not yet verified.
 
 ## Design documents
 
