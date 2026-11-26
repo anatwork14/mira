@@ -4,7 +4,7 @@
 
 MIRA is a proposed local-first intelligent HTTP(S) security proxy for humans and AI agents. It inspects supported requests and responses, uses a lightweight local model with graph-retrieved evidence for selective semantic analysis, applies independent policy, maintains dynamic destination trust profiles, and reports privacy-preserving traffic statistics.
 
-**Status (2026-11-26): design / pre-implementation.** No working runtime, measured performance, enterprise certification, all-device interception or universal prevention claim.
+**Status (2026-11-26): design plus standalone retrieval prototype.** No working runtime, measured performance, enterprise certification, all-device interception or universal prevention claim.
 
 ## First build: proxy-first 48-hour sprint
 
@@ -15,7 +15,7 @@ The active design is [PROXY_FIRST_48H.md](docs/PROXY_FIRST_48H.md). It supersede
 | Networking | mitmproxy forward proxy + Python addon |
 | Demo | Docker isolated client, proxy, local model and synthetic HTTP(S) target |
 | AI | Qwen3.5-0.8B, llama.cpp quantized GGUF, bounded structured prompts |
-| GraphRAG | SQLite typed graph, exact seeds, bounded graph traversal, evidence IDs |
+| GraphRAG | SQLite exact + BM25 + optional dense cosine + RRF + bounded graph traversal (prototype committed) |
 | Dynamic Trust | Public heuristic, scope, evidence coverage, freshness, overrides |
 | Policy | Deterministic request/response enforcement; model cannot grant permissions |
 | Storage | SQLite, bounded caches, sanitized flow metadata and aggregates |
@@ -26,6 +26,10 @@ All supported HTTP(S) traffic in the isolated demo must traverse the proxy. Actu
 ## Planned demo
 
 A clean request succeeds. A synthetic credential upload to a prohibited destination is blocked before the target receives it. A suspicious response is withheld from the client (upstream effects are not undone). A reviewed evidence update changes the destination trust status and subsequent policy decision. The dashboard records sanitized receipts for both directions. This is a planned scenario, not a test result.
+
+## Retrieval prototype
+
+See [Hybrid GraphRAG research and API](docs/HYBRID_GRAPHRAG.md) and [implementation](mira/retrieval.py). Six search modes, optional local multilingual E5, evidence validity and graph provenance. Synthetic tests supplied; execution and proxy integration not yet verified.
 
 ## Design documents
 
