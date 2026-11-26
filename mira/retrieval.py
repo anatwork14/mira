@@ -163,7 +163,7 @@ class KnowledgeStore:
                 except Exception:
                     dense_status = "unavailable"
         if mode=="semantic" and dense_status!="ready":
-            return {"hits":[],"semantic_status":dense_status,"graph_truncated":False,"version":None}
+            return {"hits":[],"direct_matches":[],"semantic_status":dense_status,"graph_truncated":False,"version":None}
         with self.db:
             self.db.execute("BEGIN")
             return self._search(query,keys,scope,mode,top_k,now,hops,max_nodes,max_vector_rows,min_cosine,vector,dense_status)
@@ -209,10 +209,22 @@ class KnowledgeStore:
                 dense_status="index_empty"
             else:
                 try:
-                    scored=[(cosine(r["vector"],vector),r["id"]) for r in rows]
+                    try:
+                        import numpy as np
+                    except ImportError:
+                        np=None
+                    if np is not None:
+                        if any(len(r["vector"])!=4*len(vector) for r in rows):
+                            raise ValueError("embedding dimension mismatch")
+                        matrix=np.frombuffer(b"".join(r["vector"] for r in rows),dtype="<f4").reshape(len(rows),len(vector))
+                        scores=matrix @ np.asarray(vector,dtype=np.float32)
+                        scored=[(float(score),r["id"]) for score,r in zip(scores,rows)]
+                    else:
+                        scored=[(cosine(r["vector"],vector),r["id"]) for r in rows]
                     scored.sort(key=lambda x:(-x[0],x[1]))
                     fuse([eid for score,eid in scored if score>=min_cosine][:limit],"semantic")
-                    dense_status="ready"
+                    total=db.execute("SELECT COUNT(*) FROM evidence e WHERE "+valid,args).fetchone()[0]
+                    dense_status="ready" if total==len(rows) else "partial_index"
                 except ValueError:
                     dense_status="index_incompatible"
         truncated=False
