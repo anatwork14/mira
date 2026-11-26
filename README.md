@@ -12,7 +12,11 @@ A trusted application can still be used to perform an unauthorized action. A pac
 
 MIRA proposes a small shared decision contract for a personal developer and a security-conscious team: **action → evidence → policy decision → safe next step → audit receipt**.
 
-## Proposed v0.1
+## First build: 48-hour SafeShare sprint
+
+The first implementation is narrower than the roadmap below: a local data-sharing check and redaction workspace plus one guarded outbound tool adapter with a synthetic receiver. No URL reputation or CVE connector is required for this sprint. See [48-hour sprint specification](docs/48H_SPRINT.md) for the frozen proposed scope, task ownership, tests and definition of done.
+
+## Proposed v0.1 roadmap (beyond the first sprint)
 
 | Interface | Purpose | Boundary |
 |---|---|---|
